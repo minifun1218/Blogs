@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /mnt/c/Users/fan/Desktop/blogs/src/main/java/org/easytech/blogs/service/impl)",
+      "Bash(mvn dependency:tree)",
+      "Bash(mvn clean)",
+      "Bash(mvn compile)",
+      "Bash(mvn clean compile -q)",
+      "Bash(mvn compile -q -Dcheckstyle.skip=true)",
+      "Bash(javac -cp \"$(mvn dependency:build-classpath -q -Dmdep.outputFile=/dev/stdout):target/classes\" src/main/java/org/easytech/blogs/test/TestLombok.java -d target/classes/)",
+      "Bash(javap -cp target/classes org.easytech.blogs.test.TestLombok)",
+      "Bash(rm -rf src/main/java/org/easytech/blogs/test/)",
+      "Bash(rm -f /mnt/c/Users/fan/Desktop/blogs/src/main/java/org/easytech/blogs/controller/RegisterRequest.java)",
+      "Bash(mvn clean compile)",
+      "Bash(mvn spring-boot:run)",
+      "Bash(rm -f /mnt/c/Users/fan/Desktop/blogs/target/classes/org/easytech/blogs/mapper/AdminLogMapper.class)"
+    ],
+    "deny": []
+  }
+}

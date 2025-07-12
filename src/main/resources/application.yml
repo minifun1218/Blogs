@@ -1,0 +1,70 @@
+spring:
+  application:
+    name: blogs
+
+  # 数据源配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/Blogs?useSSL=false&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+      enabled: true
+
+  # Jackson配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+
+# MyBatis-Plus配置
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: isDeleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+    banner: false
+  mapper-locations: classpath*:/mapper/**/*.xml
+
+
+
+# 日志配置
+logging:
+  level:
+    org.easytech.blogs: debug
+    com.baomidou.mybatisplus: debug
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+
+# 服务器配置
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# 自定义配置
+blog:
+  # 文件上传配置
+  upload:
+    path: ./uploads/
+    max-size: 10485760  # 10MB
+    allowed-types: jpg,jpeg,png,gif,mp4,avi,pdf,doc,docx,txt,zip,gzip
+  # 积分配置
+  coin:
+    post-reward: 10
