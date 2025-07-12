@@ -12,7 +12,6 @@ import java.util.List;
 /**
  * 标签Mapper接口
  */
-@Mapper
 public interface TagMapper extends BaseMapper<Tag> {
 
     /**

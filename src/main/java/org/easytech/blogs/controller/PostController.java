@@ -1,6 +1,8 @@
 package org.easytech.blogs.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.easytech.blogs.annotation.PublicAccess;
+import org.easytech.blogs.annotation.RequiresAuthentication;
 import org.easytech.blogs.common.PageResult;
 import org.easytech.blogs.common.Result;
 import org.easytech.blogs.dto.PostCreateRequest;
@@ -8,9 +10,11 @@ import org.easytech.blogs.dto.PostResponse;
 import org.easytech.blogs.dto.PostUpdateRequest;
 import org.easytech.blogs.entity.Post;
 import org.easytech.blogs.service.PostService;
+import org.easytech.blogs.util.SecurityUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,13 +42,20 @@ public class PostController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @RequiresAuthentication("发布文章")
     public Result<PostResponse> publishPost(@Validated @RequestBody PostCreateRequest request) {
         try {
+            // 设置当前用户为作者
+            Long currentUserId = SecurityUtil.getCurrentUserId();
+            if (currentUserId == null) {
+                return Result.unauthorized();
+            }
+            
             Post post = postService.publishPost(
                 request.getTitle(),
                 request.getSummary(),
                 request.getContent(),
-                request.getAuthorId(),
+                currentUserId, // 使用当前登录用户ID
                 request.getCategoryId(),
                 request.getTagNames()
             );
@@ -61,13 +72,20 @@ public class PostController {
      */
     @PostMapping("/drafts")
     @ResponseStatus(HttpStatus.CREATED)
+    @RequiresAuthentication("保存草稿")
     public Result<PostResponse> saveDraft(@Validated @RequestBody PostCreateRequest request) {
         try {
+            // 设置当前用户为作者
+            Long currentUserId = SecurityUtil.getCurrentUserId();
+            if (currentUserId == null) {
+                return Result.unauthorized();
+            }
+            
             Post post = postService.saveDraft(
                 request.getTitle(),
                 request.getContent(),
                 request.getSummary(),
-                request.getAuthorId(),
+                currentUserId, // 使用当前登录用户ID
                 request.getCategoryId(),
                 request.getTagNames()
             );
@@ -83,6 +101,7 @@ public class PostController {
      * GET /api/posts/{id}
      */
     @GetMapping("/{id}")
+    @PublicAccess("获取文章详情")
     public Result<PostResponse> getPostById(@PathVariable Long id) {
         Post post = postService.getPostDetail(id);
         if (post == null) {
@@ -98,6 +117,8 @@ public class PostController {
      * PUT /api/posts/{id}
      */
     @PutMapping("/{id}")
+    @RequiresAuthentication("更新文章")
+    @PreAuthorize("hasRole('ADMIN') or @postService.isPostAuthor(#id, authentication.principal)")
     public Result<PostResponse> updatePost(@PathVariable Long id, 
                                          @Validated @RequestBody PostUpdateRequest request) {
         try {
@@ -121,9 +142,11 @@ public class PostController {
      * DELETE /api/posts/{id}
      */
     @DeleteMapping("/{id}")
-    public Result<Void> deletePost(@PathVariable Long id,
-                                 @RequestHeader(value = "User-Id", required = false) Long userId) {
-        boolean success = postService.deletePost(id, userId);
+    @RequiresAuthentication("删除文章")
+    @PreAuthorize("hasRole('ADMIN') or @postService.isPostAuthor(#id, authentication.principal)")
+    public Result<Void> deletePost(@PathVariable Long id) {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        boolean success = postService.deletePost(id, currentUserId);
         if (success) {
             return Result.success("删除成功");
         } else {

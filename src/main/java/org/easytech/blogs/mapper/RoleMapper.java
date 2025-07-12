@@ -12,7 +12,6 @@ import java.util.List;
  * 角色Mapper接口
  * 负责角色信息的数据访问操作
  */
-@Mapper
 public interface RoleMapper extends BaseMapper<Role> {
 
     /**

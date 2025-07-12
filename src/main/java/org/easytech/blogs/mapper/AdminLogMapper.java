@@ -3,6 +3,7 @@ package org.easytech.blogs.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -15,7 +16,6 @@ import java.util.List;
  * 管理员日志Mapper接口
  * 负责管理员操作日志的数据访问操作
  */
-@Mapper
 public interface AdminLogMapper extends BaseMapper<AdminLog> {
 
     /**
@@ -103,7 +103,7 @@ public interface AdminLogMapper extends BaseMapper<AdminLog> {
      * @param beforeTime 清理时间点
      * @return 清理影响行数
      */
-    @Select("DELETE FROM tb_admin_log WHERE create_time < #{beforeTime}")
+    @Delete("DELETE FROM tb_admin_log WHERE create_time < #{beforeTime}")
     int cleanLogsBefore(@Param("beforeTime") LocalDateTime beforeTime);
 
     /**

@@ -259,4 +259,20 @@ public interface PostService {
      * @return 文章信息
      */
     Post getPostStatistics(Long postId);
+
+    /**
+     * 检查用户是否为文章作者
+     * @param postId 文章ID
+     * @param username 用户名
+     * @return 是否为作者
+     */
+    boolean isPostAuthor(Long postId, String username);
+
+    /**
+     * 检查用户是否为文章作者（通过用户ID）
+     * @param postId 文章ID
+     * @param userId 用户ID
+     * @return 是否为作者
+     */
+    boolean isPostAuthorByUserId(Long postId, Long userId);
 }

@@ -12,7 +12,6 @@ import java.util.List;
 /**
  * 分类Mapper接口
  */
-@Mapper
 public interface CategoryMapper extends BaseMapper<Category> {
 
     /**

@@ -11,7 +11,6 @@ import java.util.List;
 /**
  * 点赞记录Mapper接口
  */
-@Mapper
 public interface LikeRecordMapper extends BaseMapper<LikeRecord> {
 
     /**

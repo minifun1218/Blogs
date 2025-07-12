@@ -28,6 +28,30 @@ spring:
     time-zone: GMT+8
     default-property-inclusion: non_null
 
+  # Redis配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      database: 0
+      timeout: 6000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+
+  # 缓存配置
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000  # 1小时
+      cache-null-values: true
+      key-prefix: "blog:cache:"
+      use-key-prefix: true
+
 # MyBatis-Plus配置
 mybatis-plus:
   configuration:
@@ -68,3 +92,9 @@ blog:
   # 积分配置
   coin:
     post-reward: 10
+  # JWT配置
+  jwt:
+    secret: mySecretKey123456789012345678901234567890  # 至少32位
+    expiration: 86400  # 访问令牌过期时间（秒），24小时
+    refresh-expiration: 604800  # 刷新令牌过期时间（秒），7天
+    issuer: blog-system  # 发行者

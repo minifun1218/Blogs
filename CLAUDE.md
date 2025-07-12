@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Spring Boot 3.5.3 blog system built with Java 21, MyBatis-Plus, and MySQL. The system includes user management, blog posts, comments, categories, tags, file uploads, and a coin/points system.
+This is a Spring Boot 3.3.2 blog system built with Java 21, MyBatis-Plus, and MySQL. The system includes user management, blog posts, comments, categories, tags, file uploads, and a coin/points system.
 
 ## Build and Development Commands
 
@@ -57,6 +57,54 @@ source sql/create_tables.sql
 source sql/init_data.sql
 source sql/optimize_indexes.sql
 ```
+
+Note: The SQL README mentions database name as `mydb`, but application.yml uses `Blogs` - ensure consistency.
+
+## 认证和权限控制
+
+### JWT认证系统
+系统实现了基于JWT的无状态认证机制：
+
+- **JWT工具类**: `JwtUtil` 提供令牌生成、验证、解析功能
+- **访问令牌**: 有效期24小时，用于API访问认证
+- **刷新令牌**: 有效期7天，用于刷新访问令牌
+- **认证过滤器**: `JwtAuthenticationFilter` 自动验证JWT令牌
+- **认证控制器**: `AuthController` 提供登录、注册、令牌刷新等接口
+
+### 权限控制注解
+- `@RequiresAuthentication`: 需要用户认证
+- `@RequiresRole`: 需要特定角色
+- `@RequiresPermission`: 需要特定权限
+- `@PublicAccess`: 公开访问，无需认证
+
+### 角色和权限
+- **ADMIN**: 管理员，可以管理所有资源
+- **EDITOR**: 编辑者，可以查看用户列表等
+- **USER**: 普通用户，只能访问自己的资源
+
+### 安全配置
+- **无状态Session**: 使用JWT，不依赖服务器Session
+- **CORS支持**: 配置跨域访问
+- **路径权限**: 配置不同路径的访问权限
+- **异常处理**: 统一处理认证和授权异常
+
+### JWT配置
+```yaml
+blog:
+  jwt:
+    secret: mySecretKey123456789012345678901234567890  # JWT密钥
+    expiration: 86400  # 访问令牌过期时间（秒）
+    refresh-expiration: 604800  # 刷新令牌过期时间（秒）
+    issuer: blog-system  # 发行者
+```
+
+### 认证接口
+- `POST /api/auth/login` - 用户登录
+- `POST /api/auth/register` - 用户注册
+- `POST /api/auth/refresh` - 刷新令牌
+- `POST /api/auth/logout` - 用户登出
+- `POST /api/auth/change-password` - 修改密码
+- `GET /api/auth/me` - 获取当前用户信息
 
 ## Architecture
 
@@ -154,7 +202,7 @@ curl -X POST http://localhost:8080/api/test/exception/param-validation -H "Conte
 ## Development Notes
 
 ### Key Dependencies
-- **Spring Boot**: 3.5.3 with Java 21
+- **Spring Boot**: 3.3.2 with Java 21
 - **MyBatis-Plus**: 3.5.5 for database operations
 - **MySQL Connector**: 8.0.33
 - **Spring Security**: For password encryption

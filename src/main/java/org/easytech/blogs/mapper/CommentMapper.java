@@ -14,7 +14,6 @@ import java.util.List;
 /**
  * 评论Mapper接口
  */
-@Mapper
 public interface CommentMapper extends BaseMapper<Comment> {
 
     /**

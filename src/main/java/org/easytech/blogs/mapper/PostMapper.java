@@ -14,7 +14,6 @@ import java.util.List;
 /**
  * 文章Mapper接口
  */
-@Mapper
 public interface PostMapper extends BaseMapper<Post> {
 
     /**

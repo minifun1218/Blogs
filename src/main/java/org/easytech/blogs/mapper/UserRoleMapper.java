@@ -13,7 +13,6 @@ import java.util.List;
  * 用户角色关联Mapper接口
  * 负责用户角色关联关系的数据访问操作
  */
-@Mapper
 public interface UserRoleMapper extends BaseMapper<UserRole> {
 
     /**

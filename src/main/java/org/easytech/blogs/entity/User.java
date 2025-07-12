@@ -63,6 +63,12 @@ public class User {
     private Integer status;
 
     /**
+     * 最后登录时间
+     */
+    @TableField("last_login_time")
+    private LocalDateTime lastLoginTime;
+
+    /**
      * 创建时间
      */
     @TableField(value = "create_time", fill = FieldFill.INSERT)

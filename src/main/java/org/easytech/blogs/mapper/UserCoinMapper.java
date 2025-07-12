@@ -11,7 +11,6 @@ import org.easytech.blogs.entity.UserCoin;
  * 用户积分账户Mapper接口
  * 负责用户积分账户信息的数据访问操作
  */
-@Mapper
 public interface UserCoinMapper extends BaseMapper<UserCoin> {
 
     /**

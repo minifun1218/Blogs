@@ -15,7 +15,6 @@ import java.util.List;
  * 积分记录Mapper接口
  * 负责积分变动记录的数据访问操作
  */
-@Mapper
 public interface CoinMapper extends BaseMapper<Coin> {
 
     /**

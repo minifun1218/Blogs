@@ -13,6 +13,9 @@ import org.easytech.blogs.mapper.RoleMapper;
 import org.easytech.blogs.mapper.UserMapper;
 import org.easytech.blogs.mapper.UserRoleMapper;
 import org.easytech.blogs.service.UserService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +37,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Cacheable(value = "users", key = "'username:' + #username")
     public User findByUsername(String username) {
         if (!StringUtils.hasText(username)) {
             return null;
@@ -42,6 +46,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "users", key = "'email:' + #email")
     public User findByEmail(String email) {
         if (!StringUtils.hasText(email)) {
             return null;
@@ -111,6 +116,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(value = "users", allEntries = true)
     public boolean updateUser(User user) {
         if (user == null || user.getId() == null) {
             throw new ValidationException("用户信息不能为空");
@@ -208,6 +214,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(value = "users", allEntries = true)
     public boolean removeById(Long userId) {
         if (userId == null) {
             throw new ValidationException("用户ID不能为空");
@@ -304,6 +311,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "users", key = "'id:' + #userId")
     public User getUserById(Long userId) {
         if (userId == null) {
             return null;

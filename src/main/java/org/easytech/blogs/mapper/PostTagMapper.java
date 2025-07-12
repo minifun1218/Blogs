@@ -12,7 +12,6 @@ import java.util.List;
 /**
  * 文章标签关联Mapper接口
  */
-@Mapper
 public interface PostTagMapper extends BaseMapper<PostTag> {
 
     /**

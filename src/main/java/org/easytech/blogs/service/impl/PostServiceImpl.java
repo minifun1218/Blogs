@@ -11,6 +11,7 @@ import org.easytech.blogs.exception.ResourceNotFoundException;
 import org.easytech.blogs.exception.ValidationException;
 import org.easytech.blogs.mapper.*;
 import org.easytech.blogs.service.PostService;
+import org.easytech.blogs.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -33,6 +34,7 @@ public class PostServiceImpl implements PostService {
     private final LikeRecordMapper likeRecordMapper;
     private final CommentMapper commentMapper;
     private final CategoryMapper categoryMapper;
+    private final UserService userService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -551,5 +553,45 @@ public class PostServiceImpl implements PostService {
             limit = 10;
         }
         return postMapper.selectLatestPosts(limit);
+    }
+
+    @Override
+    public boolean isPostAuthor(Long postId, String username) {
+        if (postId == null || !StringUtils.hasText(username)) {
+            return false;
+        }
+        
+        try {
+            Post post = postMapper.selectById(postId);
+            if (post == null) {
+                return false;
+            }
+            
+            // 通过UserService获取用户信息
+            User user = userService.findByUsername(username);
+            if (user == null) {
+                return false;
+            }
+            
+            return post.getAuthorId().equals(user.getId());
+        } catch (Exception e) {
+            log.error("检查文章作者权限失败，文章ID: {}, 用户名: {}", postId, username, e);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean isPostAuthorByUserId(Long postId, Long userId) {
+        if (postId == null || userId == null) {
+            return false;
+        }
+        
+        try {
+            Post post = postMapper.selectById(postId);
+            return post != null && post.getAuthorId().equals(userId);
+        } catch (Exception e) {
+            log.error("检查文章作者权限失败，文章ID: {}, 用户ID: {}", postId, userId, e);
+            return false;
+        }
     }
 }

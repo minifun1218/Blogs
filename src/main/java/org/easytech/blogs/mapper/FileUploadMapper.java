@@ -15,7 +15,6 @@ import java.util.List;
 /**
  * 文件上传Mapper接口
  */
-@Mapper
 public interface FileUploadMapper extends BaseMapper<FileUpload> {
 
     /**

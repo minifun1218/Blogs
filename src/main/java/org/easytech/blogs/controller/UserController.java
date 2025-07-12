@@ -1,14 +1,19 @@
 package org.easytech.blogs.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.easytech.blogs.annotation.PublicAccess;
+import org.easytech.blogs.annotation.RequiresAuthentication;
+import org.easytech.blogs.annotation.RequiresRole;
 import org.easytech.blogs.common.PageResult;
 import org.easytech.blogs.common.Result;
 import org.easytech.blogs.dto.*;
 import org.easytech.blogs.entity.User;
 import org.easytech.blogs.service.UserService;
+import org.easytech.blogs.util.SecurityUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +39,7 @@ public class UserController {
      */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
+    @PublicAccess("用户注册")
     public Result<UserResponse> register(@Validated @RequestBody UserRegisterRequest request) {
         try {
             User user = new User();
@@ -56,6 +62,7 @@ public class UserController {
      * POST /api/users/login
      */
     @PostMapping("/login")
+    @PublicAccess("用户登录")
     public Result<UserResponse> login(@Validated @RequestBody UserLoginRequest request) {
         try {
             User user = userService.login(request.getUsername(), request.getPassword());
@@ -72,6 +79,7 @@ public class UserController {
      * GET /api/users/{id}
      */
     @GetMapping("/{id}")
+    @PublicAccess("获取用户信息")
     public Result<UserResponse> getUserById(@PathVariable Long id) {
         User user = userService.getById(id);
         if (user == null) {
@@ -87,6 +95,7 @@ public class UserController {
      * GET /api/users?page=1&size=10&keyword=xxx
      */
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('EDITOR')")
     public Result<PageResult<UserResponse>> getUserList(
             @RequestParam(defaultValue = "1") Long page,
             @RequestParam(defaultValue = "10") Long size,
@@ -113,6 +122,8 @@ public class UserController {
      * PUT /api/users/{id}
      */
     @PutMapping("/{id}")
+    @RequiresAuthentication("更新用户信息")
+    @PreAuthorize("hasRole('ADMIN') or @securityUtil.isCurrentUser(#id)")
     public Result<UserResponse> updateUser(@PathVariable Long id, 
                                          @Validated @RequestBody UserUpdateRequest request) {
         User existingUser = userService.getById(id);
@@ -148,6 +159,8 @@ public class UserController {
      * PUT /api/users/{id}/password
      */
     @PutMapping("/{id}/password")
+    @RequiresAuthentication("修改密码")
+    @PreAuthorize("hasRole('ADMIN') or @securityUtil.isCurrentUser(#id)")
     public Result<Void> changePassword(@PathVariable Long id, 
                                      @Validated @RequestBody PasswordChangeRequest request) {
         try {
@@ -167,6 +180,8 @@ public class UserController {
      * PATCH /api/users/{id}/status
      */
     @PatchMapping("/{id}/status")
+    @RequiresRole("ADMIN")
+    @PreAuthorize("hasRole('ADMIN')")
     public Result<Void> updateUserStatus(@PathVariable Long id, 
                                         @RequestParam Integer status) {
         boolean success = userService.updateUserStatus(id, status);
@@ -182,6 +197,8 @@ public class UserController {
      * DELETE /api/users/{id}
      */
     @DeleteMapping("/{id}")
+    @RequiresRole("ADMIN")
+    @PreAuthorize("hasRole('ADMIN')")
     public Result<Void> deleteUser(@PathVariable Long id) {
         boolean success = userService.removeById(id);
         if (success) {
@@ -196,6 +213,7 @@ public class UserController {
      * GET /api/users/check-username?username=xxx
      */
     @GetMapping("/check-username")
+    @PublicAccess("检查用户名可用性")
     public Result<Boolean> checkUsername(@RequestParam String username) {
         boolean exists = userService.existsByUsername(username);
         return Result.success(!exists); // 返回是否可用（不存在即可用）
@@ -206,6 +224,7 @@ public class UserController {
      * GET /api/users/check-email?email=xxx
      */
     @GetMapping("/check-email")
+    @PublicAccess("检查邮箱可用性")
     public Result<Boolean> checkEmail(@RequestParam String email) {
         boolean exists = userService.existsByEmail(email);
         return Result.success(!exists); // 返回是否可用（不存在即可用）
@@ -216,7 +235,9 @@ public class UserController {
      * GET /api/users/me
      */
     @GetMapping("/me")
-    public Result<UserResponse> getCurrentUser(@RequestHeader(value = "User-Id", required = false) Long userId) {
+    @RequiresAuthentication("获取当前用户信息")
+    public Result<UserResponse> getCurrentUser() {
+        Long userId = SecurityUtil.getCurrentUserId();
         if (userId == null) {
             return Result.unauthorized();
         }
